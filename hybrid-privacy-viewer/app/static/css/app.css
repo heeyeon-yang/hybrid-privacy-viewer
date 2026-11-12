@@ -112,3 +112,14 @@ body { background: var(--krds-light-color-surface-white, #fff); }
   .rv-side { flex: none; width: 100%; }
   .rv-grid-2 { grid-template-columns: 1fr; }
 }
+
+/* analysis request */
+.rv-form { padding: 2.4rem; border-radius: 0.8rem; border: 1px solid var(--krds-light-color-border-gray-light, #ddd); }
+.rv-fields { display: flex; gap: 1.6rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
+.rv-fields .form-group { flex: 1 1 20rem; margin: 0; }
+.rv-fields .krds-input, .rv-fields .krds-form-select { width: 100%; }
+.rv-req { color: var(--krds-light-color-text-danger, #d32f2f); }
+.rv-form-actions { display: flex; justify-content: flex-end; margin-top: 2.4rem; }
+.rv-result-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.6rem; flex-wrap: wrap; margin-bottom: 2.4rem; }
+.rv-result-bar .rv-note { margin: 0; }
+.rv-masked { color: var(--krds-light-color-text-subtle, #666); font-size: 1.3rem; }

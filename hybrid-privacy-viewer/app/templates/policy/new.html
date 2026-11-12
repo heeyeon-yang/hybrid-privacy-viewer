@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}분석 요청{% endblock %}
+{% block menu %}{% with active='new' %}{% include "policy/_menu.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+  <ol class="breadcrumb"><li class="home"><a href="/" class="txt">홈</a></li><li><span class="txt">분석 요청</span></li></ol>
+</nav>
+<h1 class="rv-page-title">분석 요청</h1>
+<p class="rv-desc">승인된 분석 템플릿과 조건을 골라 요청합니다. 결과에서 {{ min_cell_size() }} 미만인 칸은 가려서 제공합니다.</p>
+
+{% if error %}<div class="rv-notice rv-notice-danger" role="alert">{{ error }}</div>{% endif %}
+
+{% if runs %}
+<form method="post" action="/policy/analyses" class="rv-form">
+  <div class="rv-fields">
+    <div class="form-group">
+      <div class="form-tit"><label for="f-run">데이터 회차 <span class="rv-req" aria-label="필수">*</span></label></div>
+      <div class="form-conts">
+        <select id="f-run" name="run_id" class="krds-form-select" required>
+          {% for r in runs %}<option value="{{ r.run_id }}"{% if values.get('run_id') == r.run_id %} selected{% endif %}>{{ r.run_id }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-tit"><label for="f-scenario">분석 템플릿 <span class="rv-req" aria-label="필수">*</span></label></div>
+      <div class="form-conts">
+        <select id="f-scenario" name="scenario" class="krds-form-select"
+                hx-get="/policy/analyses/new/params" hx-target="#params" hx-trigger="change">
+          {% for key, s in catalog.items() %}<option value="{{ key }}"{% if scenario.key == key %} selected{% endif %}>{{ s.title }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="params">{% include "policy/_params.html" %}</div>
+
+  <div class="rv-form-actions">
+    <button type="submit" class="krds-btn medium primary">분석 요청</button>
+  </div>
+</form>
+{% else %}
+<div class="rv-empty">분석에 쓸 수 있는 데이터 회차가 아직 없습니다.</div>
+{% endif %}
+{% endblock %}

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
 
+from app.catalog import describe_params
 from app.config import get_settings
 from app.reports import CHECK_LABELS, MACIE_TYPE_LABELS
 
@@ -24,3 +25,6 @@ templates.env.filters["num"] = fmt_num
 templates.env.globals["CHECK_LABELS"] = CHECK_LABELS
 templates.env.globals["MACIE_TYPE_LABELS"] = MACIE_TYPE_LABELS
 templates.env.globals["session_minutes"] = lambda: get_settings().session_idle_minutes
+templates.env.globals["poll_seconds"] = lambda: get_settings().poll_seconds
+templates.env.globals["min_cell_size"] = lambda: get_settings().min_cell_size
+templates.env.globals["params_text"] = describe_params

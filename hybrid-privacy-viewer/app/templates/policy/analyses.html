@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}요청 목록{% endblock %}
+{% block menu %}{% with active='analyses' %}{% include "policy/_menu.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+  <ol class="breadcrumb"><li class="home"><a href="/" class="txt">홈</a></li><li><span class="txt">요청 목록</span></li></ol>
+</nav>
+<h1 class="rv-page-title">요청 목록</h1>
+<p class="rv-desc">내가 보낸 분석 요청입니다. 실행 중인 요청은 끝나면 상태가 자동으로 바뀝니다.</p>
+{% include "policy/_analysis_list.html" %}
+{% endblock %}

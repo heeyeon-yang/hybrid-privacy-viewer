@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -12,13 +13,29 @@ DATA = Path(__file__).resolve().parent.parent / "sample-data"
 
 
 @pytest.fixture
-def settings(tmp_path):
+def data_dir(tmp_path):
+    # the fake Lambda writes into data_dir, so each test gets its own copy
+    path = tmp_path / "data"
+    shutil.copytree(DATA, path)
+    return path
+
+
+@pytest.fixture
+def settings(tmp_path, data_dir):
     accounts = tmp_path / "accounts.json"
     accounts.write_text(json.dumps({"accounts": [
         {"username": "policy01", "name": "정책", "role": "policy", "password_hash": hash_password("pw-policy", 1000)},
+        {"username": "policy02", "name": "정책2", "role": "policy", "password_hash": hash_password("pw-policy", 1000)},
         {"username": "security01", "name": "보안", "role": "security", "password_hash": hash_password("pw-security", 1000)},
     ]}), encoding="utf-8")
-    return Settings(git_sha="abc1234", data_dir=DATA, accounts_file=accounts, session_secret="test", max_login_failures=3)
+    return Settings(
+        git_sha="abc1234",
+        data_dir=data_dir,
+        accounts_file=accounts,
+        session_secret="test",
+        max_login_failures=3,
+        local_analysis_delay=0,
+    )
 
 
 @pytest.fixture

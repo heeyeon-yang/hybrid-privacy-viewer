@@ -11,7 +11,7 @@ from fastapi import Depends, HTTPException, Request
 from app.config import Settings, get_settings
 
 ROLES = {"policy": "정책기획팀", "security": "정보보호팀"}
-HOME = {"policy": "/policy/runs", "security": "/security/runs"}
+HOME = {"policy": "/policy/analyses", "security": "/security/runs"}
 
 
 @dataclass

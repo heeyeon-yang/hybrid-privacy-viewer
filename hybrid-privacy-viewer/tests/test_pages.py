@@ -1,20 +1,25 @@
-def test_policy_lists_only_finished_runs(policy):
+def test_policy_lists_ready_runs(policy):
     text = policy.get("/policy/runs").text
     assert "20261112-01" in text and "20261109-01" in text
     assert "20261111-01" not in text
 
 
-def test_scenario_filter_returns_partial(policy):
-    url = "/policy/runs/20261112-01/scenarios/1?region=서울 노원구"
-    full = policy.get(url)
-    part = policy.get(url, headers={"HX-Request": "true"})
-    assert full.status_code == part.status_code == 200
-    assert "<html" in full.text and "<html" not in part.text
-    assert "서울 노원구" in part.text and "서울 강서구" not in part.text
+def test_policy_home_is_request_list(client):
+    from tests.conftest import login
+
+    assert login(client, "policy01", "pw-policy").headers["location"] == "/policy/analyses"
 
 
-def test_scenario2_renders(policy):
-    assert "기초생활보장" in policy.get("/policy/runs/20261112-01/scenarios/2").text
+def test_new_analysis_form_lists_runs_and_templates(policy):
+    text = policy.get("/policy/analyses/new?run_id=20261109-01").text
+    assert '<option value="20261109-01" selected>' in text
+    assert "위기가구 지원 연계율" in text and "기초생활보장 수급 현황" in text
+
+
+def test_params_fragment_follows_template(policy):
+    res = policy.get("/policy/analyses/new/params?scenario=basic_living_status", headers={"HX-Request": "true"})
+    assert "<html" not in res.text
+    assert "가구 유형" in res.text and "위기정보 유형" not in res.text
 
 
 def test_security_run_status(security):

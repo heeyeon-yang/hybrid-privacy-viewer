@@ -6,11 +6,35 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.analyses import LambdaBackend
 from app.auth import LoginGuard, LoginRequired, User
 from app.config import Settings, get_settings
+from app.local_lambda import LocalLambda
 from app.routers import login, policy, security
-from app.storage import LocalStore
+from app.storage import LocalStore, S3Store
 from app.templating import templates
+
+
+def _session(profile: str):
+    import boto3
+
+    return boto3.Session(profile_name=profile or None)
+
+
+def build_backends(settings: Settings) -> tuple:
+    if settings.data_source == "s3":
+        results = S3Store(_session(settings.results_profile).client("s3", region_name=settings.s3_region), settings.s3_bucket, "results")
+        reports = S3Store(_session(settings.reports_profile).client("s3", region_name=settings.s3_region), settings.s3_bucket, "reports")
+    else:
+        results = LocalStore(settings.data_dir, "results")
+        reports = LocalStore(settings.data_dir, "reports")
+
+    if settings.analysis_backend == "lambda":
+        client = _session(settings.results_profile).client("lambda", region_name=settings.s3_region)
+        analysis = LambdaBackend(client, settings.analysis_function)
+    else:
+        analysis = LocalLambda(settings.data_dir, settings.local_analysis_delay, settings.min_cell_size)
+    return results, reports, analysis
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -18,8 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Result Viewer", docs_url=None, redoc_url=None, openapi_url=None)
 
     app.dependency_overrides[get_settings] = lambda: settings
-    app.state.results = LocalStore(settings.data_dir, "results")
-    app.state.reports = LocalStore(settings.data_dir, "reports")
+    app.state.results, app.state.reports, app.state.analysis = build_backends(settings)
     app.state.login_guard = LoginGuard(settings.max_login_failures, settings.lockout_minutes * 60)
 
     app.add_middleware(

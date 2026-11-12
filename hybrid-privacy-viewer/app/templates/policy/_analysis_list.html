@@ -1,0 +1,28 @@
+{% from "_macros.html" import analysis_status %}
+<div id="analysis-list"{% if polling %} hx-get="/policy/analyses" hx-trigger="every {{ poll_seconds() }}s" hx-swap="outerHTML"{% endif %}>
+  {% if items %}
+  <div class="krds-table-wrap">
+    <table class="tbl col data">
+      <caption>내가 보낸 분석 요청. 요청 ID, 요청 일시, 분석 템플릿, 데이터 회차, 조건, 상태로 구성</caption>
+      <thead>
+        <tr><th scope="col">요청 ID</th><th scope="col">요청 일시</th><th scope="col">분석 템플릿</th><th scope="col">데이터 회차</th><th scope="col">조건</th><th scope="col">상태</th></tr>
+      </thead>
+      <tbody>
+        {% for a in items %}
+        {% set s = catalog.get(a.request.scenario) %}
+        <tr>
+          <td><a href="/policy/analyses/{{ a.request.request_id }}" class="rv-mono">{{ a.request.request_id }}</a></td>
+          <td>{{ a.request.requested_at | dt }}</td>
+          <td>{{ s.title if s else a.request.scenario }}</td>
+          <td class="rv-mono">{{ a.request.run_id }}</td>
+          <td>{{ params_text(s, a.request.params) }}</td>
+          <td>{{ analysis_status(a.status, a.status_label) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="rv-empty">보낸 분석 요청이 없습니다. <a href="/policy/analyses/new">분석 요청</a>에서 시작하세요.</div>
+  {% endif %}
+</div>

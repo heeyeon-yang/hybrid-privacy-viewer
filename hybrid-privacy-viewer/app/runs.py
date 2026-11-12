@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 
 from app.reports import AdequacyReview, ExportRecord, MacieResult
-from app.storage import LocalStore
+from app.storage import Store
 
 STEPS = ["가명처리", "적정성 검토", "반출", "Macie 검사", "정제 버킷 적재"]
 
@@ -54,11 +54,12 @@ class RunSummary:
         return self.review.reviewed_at if self.review else None
 
 
-def load_run(reports: LocalStore, run_id: str) -> RunSummary:
+def load_run(reports: Store, run_id: str) -> RunSummary:
     try:
-        review = reports.read_json(run_id, "adequacy_review.json")
-        export = reports.read_json(run_id, "export_record.json")
-        macie = reports.read_json(run_id, "macie_result.json")
+        base = f"run_id={run_id}/"
+        review = reports.read_json(base + "adequacy_review.json")
+        export = reports.read_json(base + "export_record.json")
+        macie = reports.read_json(base + "macie_result.json")
         return RunSummary(
             run_id=run_id,
             review=AdequacyReview(**review) if review else None,
@@ -69,5 +70,5 @@ def load_run(reports: LocalStore, run_id: str) -> RunSummary:
         return RunSummary(run_id=run_id, review=None, export=None, macie=None, broken=True)
 
 
-def load_runs(reports: LocalStore) -> list[RunSummary]:
+def load_runs(reports: Store) -> list[RunSummary]:
     return [load_run(reports, run_id) for run_id in reports.run_ids()]

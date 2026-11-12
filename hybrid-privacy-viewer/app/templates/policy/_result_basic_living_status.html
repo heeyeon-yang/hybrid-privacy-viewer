@@ -1,3 +1,4 @@
+{% from "_macros.html" import count %}
 <ul class="rv-stats">
   <li><span>기준 연도</span><strong>{{ view.summary.latest_year or '-' }}</strong></li>
   <li><span>수급자 수 (급여 종류 합산)</span><strong>{{ view.summary.recipients | num }}</strong></li>
@@ -5,7 +6,9 @@
 
 <section class="rv-section">
   <h2 class="rv-section-title">연도별 급여 종류별 수급자 수</h2>
+  {% if view.chart.series %}
   <div class="rv-chart" data-chart='{"type":"bar-group","labels":{{ view.chart.years | tojson }},"series":{{ view.chart.series | tojson }},"unit":"명"}'></div>
+  {% else %}<div class="rv-empty">표시할 수 있는 칸이 없습니다.</div>{% endif %}
 </section>
 
 <section class="rv-section">
@@ -22,8 +25,8 @@
           <td>{{ r.year }}</td>
           <th scope="row">{{ r.household_type }}</th>
           <td>{{ r.benefit_type }}</td>
-          <td class="rv-num">{{ r.recipients | num }}</td>
-          <td class="rv-num">{{ r.avg_payment | num }}</td>
+          <td class="rv-num">{{ count(r.recipients, min_cell) }}</td>
+          <td class="rv-num">{{ count(r.avg_payment, min_cell) }}</td>
         </tr>
         {% else %}
         <tr><td colspan="5" class="rv-empty-cell">조건에 맞는 결과가 없습니다.</td></tr>

@@ -1,10 +1,5 @@
-<li class="lnb-item{% if active == 'runs' %} active{% endif %}">
-  <a href="/policy/runs" class="lnb-btn lnb-link"{% if active == 'runs' %} aria-current="page"{% endif %}>분석 회차</a>
-</li>
-{% if run is defined %}
-{% for num, s in scenarios.items() %}
-<li class="lnb-item{% if active == 's' ~ num %} active{% endif %}">
-  <a href="/policy/runs/{{ run.run_id }}/scenarios/{{ num }}" class="lnb-btn lnb-link"{% if active == 's' ~ num %} aria-current="page"{% endif %}>{{ s.title }}</a>
+{% for key, href, label in [('new', '/policy/analyses/new', '분석 요청'), ('analyses', '/policy/analyses', '요청 목록'), ('runs', '/policy/runs', '데이터 회차')] %}
+<li class="lnb-item{% if active == key %} active{% endif %}">
+  <a href="{{ href }}" class="lnb-btn lnb-link"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a>
 </li>
 {% endfor %}
-{% endif %}
