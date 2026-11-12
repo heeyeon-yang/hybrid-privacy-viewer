@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}실행 기록{% endblock %}
+{% block menu %}{% with active='runs' %}{% include "security/_menu.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+  <ol class="breadcrumb"><li class="home"><a href="/" class="txt">홈</a></li><li><span class="txt">실행 기록</span></li></ol>
+</nav>
+<h1 class="rv-page-title">파이프라인 실행 기록</h1>
+<p class="rv-desc">회차마다 가명처리부터 정제 버킷 적재까지 어느 단계에서 멈췄는지 확인합니다.</p>
+
+<ul class="rv-stats">
+  <li><span>전체 회차</span><strong>{{ runs | length }}</strong></li>
+  <li><span>반출 완료</span><strong>{{ counts.get('반출 완료', 0) }}</strong></li>
+  <li><span>검토 중단</span><strong class="rv-danger">{{ counts.get('중단', 0) }}</strong></li>
+  <li><span>Macie 격리</span><strong class="rv-warning">{{ counts.get('격리', 0) }}</strong></li>
+</ul>
+
+<div class="krds-table-wrap">
+  <table class="tbl col data">
+    <caption>실행 회차별 실행 일시, 진행 단계, 결과</caption>
+    <thead>
+      <tr><th scope="col">회차 ID</th><th scope="col">실행 일시</th><th scope="col">진행 단계</th><th scope="col">결과</th><th scope="col">상세</th></tr>
+    </thead>
+    <tbody>
+      {% for r in runs %}
+      <tr>
+        <td><span class="rv-mono">{{ r.run_id }}</span></td>
+        <td>{{ r.executed_at | dt }}</td>
+        <td>
+          <ol class="rv-dots" aria-label="진행 단계">
+            {% for s in steps %}
+            <li class="{% if loop.index0 <= r.reached %}done{% elif r.failed_step == loop.index0 %}fail{% endif %}" title="{{ s }}"><span class="sr-only">{{ s }}</span></li>
+            {% endfor %}
+          </ol>
+        </td>
+        <td>{% with status=r.status %}{% include "security/_status.html" %}{% endwith %}</td>
+        <td><a href="/security/runs/{{ r.run_id }}" class="krds-btn small secondary">보기</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="rv-empty-cell">실행 기록이 없습니다.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

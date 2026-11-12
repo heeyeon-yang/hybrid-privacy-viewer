@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}분석 회차{% endblock %}
+{% block menu %}{% with active='runs' %}{% include "policy/_menu.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+  <ol class="breadcrumb"><li class="home"><a href="/" class="txt">홈</a></li><li><span class="txt">분석 회차</span></li></ol>
+</nav>
+<h1 class="rv-page-title">분석 회차</h1>
+<p class="rv-desc">적정성 검토를 통과하고 반출과 Macie 검사까지 끝난 회차만 표시합니다.</p>
+
+{% if runs %}
+<div class="krds-table-wrap">
+  <table class="tbl col data">
+    <caption>분석 회차 목록. 회차 ID, 분석 완료 일시, 검토 결과, 시나리오 바로가기로 구성</caption>
+    <thead>
+      <tr><th scope="col">회차 ID</th><th scope="col">분석 완료</th><th scope="col">적정성 검토</th><th scope="col">결과 보기</th></tr>
+    </thead>
+    <tbody>
+      {% for r in runs %}
+      <tr>
+        <td><span class="rv-mono">{{ r.run_id }}</span></td>
+        <td>{{ r.generated_at[:16] | replace('T', ' ') }}</td>
+        <td><span class="krds-badge outline-success">통과</span></td>
+        <td class="rv-actions">
+          <a href="/policy/runs/{{ r.run_id }}/scenarios/1" class="krds-btn small secondary">시나리오 1</a>
+          <a href="/policy/runs/{{ r.run_id }}/scenarios/2" class="krds-btn small secondary">시나리오 2</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="rv-empty">조회할 수 있는 분석 결과가 아직 없습니다.</div>
+{% endif %}
+{% endblock %}

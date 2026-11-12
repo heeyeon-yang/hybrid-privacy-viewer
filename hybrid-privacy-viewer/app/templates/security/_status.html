@@ -1,0 +1,2 @@
+{% set badge = {'반출 완료': 'outline-success', '중단': 'outline-danger', '격리': 'outline-warning', '기록 오류': 'outline-danger'} %}
+<span class="krds-badge {{ badge.get(status, 'outline-gray') }}">{{ status }}</span>

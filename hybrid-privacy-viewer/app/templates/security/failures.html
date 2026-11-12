@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}중단 및 탐지 집계{% endblock %}
+{% block menu %}{% with active='failures' %}{% include "security/_menu.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+  <ol class="breadcrumb"><li class="home"><a href="/" class="txt">홈</a></li><li><span class="txt">중단 및 탐지 집계</span></li></ol>
+</nav>
+<h1 class="rv-page-title">중단 및 탐지 집계</h1>
+<p class="rv-desc">온프레미스 적정성 검토에서 막힌 사유와 AWS Macie에서 탐지된 유형을 함께 봅니다.</p>
+
+<ul class="rv-stats">
+  <li><span>전체 회차</span><strong>{{ total }}</strong></li>
+  <li><span>검토 중단</span><strong class="rv-danger">{{ aborted }}</strong></li>
+  <li><span>Macie 격리</span><strong class="rv-warning">{{ quarantined }}</strong></li>
+</ul>
+
+<div class="rv-grid-2">
+  <section class="rv-section">
+    <h2 class="rv-section-title">적정성 검토 중단 사유</h2>
+    {% if reasons %}
+    <div class="rv-chart rv-chart-sm" data-chart='{"type":"bar-h","labels":{{ reasons | map(attribute=0) | list | tojson }},"values":{{ reasons | map(attribute=1) | list | tojson }},"unit":"건"}'></div>
+    <div class="krds-table-wrap">
+      <table class="tbl col data">
+        <caption>중단 사유별 건수</caption>
+        <thead><tr><th scope="col">사유</th><th scope="col" class="rv-num-h">건수</th></tr></thead>
+        <tbody>{% for label, count in reasons %}<tr><th scope="row">{{ label }}</th><td class="rv-num">{{ count }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}<div class="rv-empty">중단된 회차가 없습니다.</div>{% endif %}
+  </section>
+
+  <section class="rv-section">
+    <h2 class="rv-section-title">Macie 탐지 유형</h2>
+    {% if detected %}
+    <div class="rv-chart rv-chart-sm" data-chart='{"type":"bar-h","labels":{{ detected | map(attribute=0) | list | tojson }},"values":{{ detected | map(attribute=1) | list | tojson }},"unit":"건"}'></div>
+    <div class="krds-table-wrap">
+      <table class="tbl col data">
+        <caption>Macie 탐지 유형별 건수</caption>
+        <thead><tr><th scope="col">유형</th><th scope="col" class="rv-num-h">건수</th></tr></thead>
+        <tbody>{% for label, count in detected %}<tr><th scope="row">{{ label }}</th><td class="rv-num">{{ count }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}<div class="rv-empty">탐지된 항목이 없습니다.</div>{% endif %}
+  </section>
+</div>
+{% endblock %}

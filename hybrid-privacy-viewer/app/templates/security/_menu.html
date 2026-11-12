@@ -1,0 +1,6 @@
+<li class="lnb-item{% if active == 'runs' %} active{% endif %}">
+  <a href="/security/runs" class="lnb-btn lnb-link"{% if active == 'runs' %} aria-current="page"{% endif %}>실행 기록</a>
+</li>
+<li class="lnb-item{% if active == 'failures' %} active{% endif %}">
+  <a href="/security/failures" class="lnb-btn lnb-link"{% if active == 'failures' %} aria-current="page"{% endif %}>중단 및 탐지 집계</a>
+</li>

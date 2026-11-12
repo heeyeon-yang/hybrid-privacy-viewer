@@ -1,0 +1,114 @@
+/* served locally: the on-prem network has no internet access */
+@font-face { font-family: "Pretendard GOV"; font-weight: 400; font-display: swap; src: url("../vendor/krds/fonts/PretendardGOV-Regular.subset.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard GOV"; font-weight: 500; font-display: swap; src: url("../vendor/krds/fonts/PretendardGOV-Medium.subset.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard GOV"; font-weight: 700; font-display: swap; src: url("../vendor/krds/fonts/PretendardGOV-Bold.subset.woff2") format("woff2"); }
+
+html, body { font-family: "Pretendard GOV", sans-serif; }
+body { background: var(--krds-light-color-surface-white, #fff); }
+
+#wrap { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* header */
+.rv-header .header-branding {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.6rem; padding: 1.6rem 0; flex-wrap: wrap;
+}
+.rv-brand { display: flex; align-items: center; gap: 1.2rem; margin: 0; }
+.rv-brand a { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+.rv-brand-org { font-size: 1.3rem; color: var(--krds-light-color-text-subtle, #555); }
+.rv-brand-name { font-size: 2rem; font-weight: 700; }
+.rv-header { border-bottom: 1px solid var(--krds-light-color-border-gray-light, #ddd); }
+.rv-header .header-container .inner { display: block; }
+.rv-user { margin-left: auto; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; font-size: 1.5rem; }
+.rv-user form { margin: 0; }
+.rv-user-name { font-weight: 600; }
+.rv-session { color: var(--krds-light-color-text-subtle, #555); font-size: 1.4rem; }
+.rv-session strong { font-variant-numeric: tabular-nums; }
+
+/* layout */
+.rv-container { flex: 1; padding: 3.2rem 0 6.4rem; }
+.rv-layout { display: flex; gap: 4rem; align-items: flex-start; }
+.rv-side { flex: 0 0 22rem; }
+.rv-side .lnb-link { display: block; }
+.rv-content { flex: 1; min-width: 0; }
+
+.rv-footer { padding: 2.4rem 0; border-top: 1px solid var(--krds-light-color-border-gray-light, #ddd); }
+.rv-footer .f-copy { font-size: 1.3rem; color: var(--krds-light-color-text-subtle, #666); margin: 0; }
+
+/* page */
+.rv-page-title { font-size: 2.8rem; font-weight: 700; margin: 1.6rem 0 0.8rem; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
+.rv-desc { color: var(--krds-light-color-text-subtle, #555); margin-bottom: 2.4rem; }
+.rv-section { margin-top: 4rem; }
+.rv-section-title { font-size: 2rem; font-weight: 700; margin-bottom: 1.2rem; }
+.rv-note { font-size: 1.4rem; color: var(--krds-light-color-text-subtle, #666); margin-bottom: 1.2rem; }
+.rv-mono { font-family: "D2Coding", Consolas, monospace; }
+.rv-hash { font-size: 1.3rem; }
+.rv-num,
+.krds-table-wrap .tbl.data td.rv-num { text-align: right; font-variant-numeric: tabular-nums; }
+.rv-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.rv-full { width: 100%; }
+
+.rv-meta { display: flex; gap: 3.2rem; flex-wrap: wrap; margin: 0 0 2.4rem; font-size: 1.5rem; }
+.rv-meta div { display: flex; gap: 0.8rem; align-items: center; }
+.rv-meta dt { color: var(--krds-light-color-text-subtle, #666); }
+.rv-meta dd { margin: 0; font-weight: 600; }
+
+.rv-stats { display: flex; gap: 1.6rem; flex-wrap: wrap; margin: 0 0 3.2rem; padding: 0; list-style: none; }
+.rv-stats li {
+  flex: 1 1 16rem; padding: 2rem 2.4rem; border-radius: 0.8rem;
+  background: var(--krds-light-color-surface-gray-subtler, #f4f5f6);
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+.rv-stats span { font-size: 1.4rem; color: var(--krds-light-color-text-subtle, #555); }
+.rv-stats strong { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rv-danger { color: var(--krds-light-color-text-danger, #d32f2f); }
+.rv-warning { color: var(--krds-light-color-text-warning, #b26a00); }
+
+.rv-filter {
+  display: flex; gap: 1.6rem; flex-wrap: wrap; align-items: flex-end;
+  padding: 2rem 2.4rem; margin-bottom: 3.2rem; border-radius: 0.8rem;
+  border: 1px solid var(--krds-light-color-border-gray-light, #ddd);
+}
+.rv-filter .form-group { flex: 1 1 16rem; margin: 0; }
+.rv-filter.htmx-request { opacity: 0.6; }
+
+.rv-chart { width: 100%; height: 32rem; }
+.rv-chart-sm { height: 22rem; margin-bottom: 1.6rem; }
+.rv-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3.2rem; }
+.rv-grid-2 .rv-section { margin-top: 0; }
+
+.rv-empty, .rv-notice {
+  padding: 2rem 2.4rem; border-radius: 0.8rem; font-size: 1.5rem;
+  background: var(--krds-light-color-surface-gray-subtler, #f4f5f6);
+}
+.rv-notice { margin-bottom: 2.4rem; background: var(--krds-light-color-surface-information-subtler, #eef5ff); }
+.rv-notice-danger { background: var(--krds-light-color-surface-danger-subtler, #fdeeee); }
+.rv-empty-cell { text-align: center; color: var(--krds-light-color-text-subtle, #666); }
+
+/* run progress dots on the list */
+.rv-dots { display: flex; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+.rv-dots li { width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--krds-light-color-border-gray-light, #ccc); }
+.rv-dots li.done { background: var(--krds-light-color-icon-success, #2e7d32); }
+.rv-dots li.fail { background: var(--krds-light-color-icon-danger, #d32f2f); }
+
+.rv-steps { margin: 2.4rem 0 1.6rem; }
+.krds-step-wrap > li.rv-step-fail > span::before { border-color: var(--krds-light-color-icon-danger, #d32f2f); }
+.krds-step-wrap > li.rv-step-fail > span::after { background-color: var(--krds-light-color-icon-danger, #d32f2f); }
+.rv-step-fail .step-tit { color: var(--krds-light-color-text-danger, #d32f2f); }
+
+.rv-filter .krds-form-select { color: var(--krds-light-color-text-basic); }
+.rv-side .lnb-item.active > .lnb-link {
+  color: var(--krds-light-color-text-primary, #256ef4);
+  background: var(--krds-light-color-surface-primary-subtler, #eef4ff);
+}
+.krds-table-wrap .tbl.data th.rv-num-h { text-align: right; }
+
+/* login */
+.rv-login { max-width: 48rem; margin: 4rem auto; }
+.rv-login-form .fieldset { margin-bottom: 2.4rem; }
+
+@media (max-width: 1024px) {
+  .rv-layout { flex-direction: column; gap: 2.4rem; }
+  .rv-side { flex: none; width: 100%; }
+  .rv-grid-2 { grid-template-columns: 1fr; }
+}

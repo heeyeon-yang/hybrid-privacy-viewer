@@ -1,0 +1,9 @@
+{
+  "run_id": "20261109-01",
+  "generated_at": "2026-11-09T15:05:00+09:00",
+  "adequacy_passed": true,
+  "scenarios": [
+    "scenario1.csv",
+    "scenario2.csv"
+  ]
+}
