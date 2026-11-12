@@ -16,7 +16,8 @@ DATA = Path(__file__).resolve().parent.parent / "sample-data"
 def data_dir(tmp_path):
     # the fake Lambda writes into data_dir, so each test gets its own copy
     path = tmp_path / "data"
-    shutil.copytree(DATA, path)
+    # leave out requests made while running the app locally
+    shutil.copytree(DATA, path, ignore=shutil.ignore_patterns("requests", "analysis_requests"))
     return path
 
 
