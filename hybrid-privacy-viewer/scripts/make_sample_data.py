@@ -1,4 +1,8 @@
-"""Write synthetic results/ and reports/ under sample-data/ for local development."""
+"""Write synthetic data/, results/ and reports/ under sample-data/ for local development.
+
+data/ stands in for the pseudonymized tables Athena queries. Only the local
+fake Lambda reads it; the app itself never does.
+"""
 
 import csv
 import hashlib
@@ -10,11 +14,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent / "sample-data"
 
 SIGUNGU = ["서울 강서구", "서울 노원구", "서울 중랑구", "부산 사하구", "대구 달서구", "인천 남동구", "광주 북구", "대전 서구"]
-CRISIS = ["단전", "단수", "건강보험료 체납", "통신비 체납", "임대료 체납", "금융 연체"]
+CRISIS = {"단전": 0.62, "단수": 0.58, "건강보험료 체납": 0.41, "통신비 체납": 0.35, "임대료 체납": 0.47, "금융 연체": 0.29}
+CRISIS_WEIGHT = [18, 10, 30, 22, 14, 6]
 MONTHS = ["2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"]
-HOUSEHOLD = ["1인 가구", "노인 가구", "한부모 가구", "장애인 가구", "일반 가구"]
-BENEFIT = {"생계급여": 640_000, "의료급여": 210_000, "주거급여": 320_000, "교육급여": 45_000}
-TABLES = {"citizen.csv": 10000, "crisis_signal.csv": 4200, "benefit_payment.csv": 18500}
+HOUSEHOLD = {"일반 가구": 40, "1인 가구": 25, "노인 가구": 18, "한부모 가구": 9, "장애인 가구": 8}
+BENEFIT = {"생계급여": (640_000, 35), "의료급여": (210_000, 30), "주거급여": (320_000, 28), "교육급여": (45_000, 7)}
+YEARS = [2023, 2024, 2025, 2026]
+TABLES = {"citizen.csv": 3000, "crisis_signal.csv": 1500, "benefit_payment.csv": 5000}
 
 
 def sha(text: str) -> str:
@@ -26,28 +32,40 @@ def write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def scenario1(rng: random.Random, path: Path) -> None:
-    base = {"단전": 0.62, "단수": 0.58, "건강보험료 체납": 0.41, "통신비 체납": 0.35, "임대료 체납": 0.47, "금융 연체": 0.29}
+def write_csv(path: Path, header: list[str], rows) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["period", "sigungu", "crisis_type", "households", "linked"])
-        for m in MONTHS:
-            for g in SIGUNGU:
-                for c in CRISIS:
-                    n = rng.randint(20, 140)
-                    rate = min(0.95, max(0.05, base[c] + rng.uniform(-0.12, 0.12)))
-                    w.writerow([m, g, c, n, round(n * rate)])
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(header)
+        w.writerows(rows)
 
 
-def scenario2(rng: random.Random, path: Path) -> None:
-    with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["year", "household_type", "benefit_type", "recipients", "avg_payment"])
-        for i, y in enumerate([2023, 2024, 2025, 2026]):
-            for h in HOUSEHOLD:
-                for b, pay in BENEFIT.items():
-                    n = int(rng.randint(800, 4000) * (1 + 0.04 * i))
-                    w.writerow([y, h, b, n, round(pay * (1 + 0.03 * i) * rng.uniform(0.9, 1.1), -2)])
+def make_tables(rng: random.Random, run_id: str, out: Path) -> None:
+    # citizen_id mimics the HMAC token the pipeline puts in place of the real id
+    citizens = []
+    for i in range(TABLES["citizen.csv"]):
+        token = "t_" + sha(f"{run_id}:{i}")[:16]
+        sigungu = rng.choice(SIGUNGU)
+        household = rng.choices(list(HOUSEHOLD), weights=HOUSEHOLD.values())[0]
+        citizens.append((token, sigungu, household))
+    write_csv(out / "citizen.csv", ["citizen_id", "sigungu", "household_type"], citizens)
+
+    signals = []
+    for _ in range(TABLES["crisis_signal.csv"]):
+        token = rng.choice(citizens)[0]
+        crisis = rng.choices(list(CRISIS), weights=CRISIS_WEIGHT)[0]
+        rate = min(0.95, max(0.05, CRISIS[crisis] + rng.uniform(-0.15, 0.15)))
+        signals.append((token, rng.choice(MONTHS), crisis, int(rng.random() < rate)))
+    write_csv(out / "crisis_signal.csv", ["citizen_id", "signal_month", "crisis_type", "linked"], signals)
+
+    payments = []
+    for _ in range(TABLES["benefit_payment.csv"]):
+        token = rng.choice(citizens)[0]
+        year = rng.choice(YEARS)
+        benefit = rng.choices(list(BENEFIT), weights=[w for _, w in BENEFIT.values()])[0]
+        base = BENEFIT[benefit][0] * (1 + 0.03 * (year - YEARS[0]))
+        payments.append((token, year, benefit, int(round(base * rng.uniform(0.85, 1.15), -2))))
+    write_csv(out / "benefit_payment.csv", ["citizen_id", "year", "benefit_type", "monthly_amount"], payments)
 
 
 def export_record(run_id: str, at: str, status: str) -> dict:
@@ -112,15 +130,13 @@ def main() -> None:
         write_json(rep / "macie_result.json", macie(run_id, later, "crisis_signal.csv" if case == "macie" else None))
 
         if case == "ok":
-            res = ROOT / "results" / f"run_id={run_id}"
-            res.mkdir(parents=True, exist_ok=True)
-            scenario1(rng, res / "scenario1.csv")
-            scenario2(rng, res / "scenario2.csv")
-            write_json(res / "manifest.json", {
+            make_tables(rng, run_id, ROOT / "data" / f"run_id={run_id}")
+            # marker the classifier writes once every file of the run is clean
+            write_json(ROOT / "results" / f"run_id={run_id}" / "manifest.json", {
                 "run_id": run_id,
-                "generated_at": at.replace("T14:00", "T15:05"),
+                "generated_at": at.replace("T14:00", "T14:25"),
                 "adequacy_passed": True,
-                "scenarios": ["scenario1.csv", "scenario2.csv"],
+                "tables": [name.removesuffix(".csv") for name in TABLES],
             })
 
 

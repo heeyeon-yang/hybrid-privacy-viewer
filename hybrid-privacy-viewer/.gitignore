@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .env
+
+# written by the local fake Lambda
+sample-data/results/requests/
+sample-data/reports/analysis_requests/
