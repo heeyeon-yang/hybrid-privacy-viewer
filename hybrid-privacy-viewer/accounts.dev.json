@@ -4,13 +4,13 @@
       "username": "policy01",
       "name": "김서연",
       "role": "policy",
-      "password_hash": "pbkdf2_sha256$600000$2c74b16d76b8a32258f85347e7b5c799$9cf3f767890b850f84cf2c50388cb744356843c72e088270d8ede9e7c1475451"
+      "password_hash": "pbkdf2_sha256$600000$3dc50b9be7c5b8ceaf58392d1434804e$455d7704dc0dc3c12161d8446c796eafc517246966538755da5ed3ab93b7ef02"
     },
     {
       "username": "security01",
       "name": "박도윤",
       "role": "security",
-      "password_hash": "pbkdf2_sha256$600000$ae90ebfd2766c7745591c1dafd79c294$b0780a54fbd388e46fa2158bb2422dc012b30ebc109055b9aaec52749a461b2a"
+      "password_hash": "pbkdf2_sha256$600000$a115a8c863eefdbec79fcf306d2c41a5$2749a028d602410abb0ff32b24d3a99f2a77f20c377a34c456bb52a6833338f9"
     }
   ]
 }
