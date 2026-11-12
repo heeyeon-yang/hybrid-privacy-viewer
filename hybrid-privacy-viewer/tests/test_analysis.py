@@ -56,7 +56,7 @@ def test_small_cells_are_blank(policy, data_dir):
             else:
                 assert int(r[col]) == 0 or int(r[col]) >= 5
     assert blanks == manifest["suppressed_cells"] > 0
-    assert "가림" in policy.get(f"/policy/analyses/{request_id}").text
+    assert 'class="rv-masked"' in policy.get(f"/policy/analyses/{request_id}").text
 
 
 def test_derived_column_hidden_with_its_count(policy, data_dir):
@@ -140,7 +140,7 @@ def test_security_sees_request_log_without_results(policy, client):
     text = client.get("/security/analyses").text
     assert "policy01" in text and "위기가구 지원 연계율" in text and "2026-08 ~ 2026-08" in text
     assert "연계율 점검" in text
-    assert "가려진 칸" in text
+    assert "비공개 값" in text
 
 
 def test_clean_params_fills_optional_with_none():

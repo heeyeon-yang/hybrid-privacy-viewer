@@ -14,7 +14,7 @@
 <dl class="rv-meta">
   <div><dt>신청번호</dt><dd class="rv-mono">{{ req.request_id }}</dd></div>
   <div><dt>분석 조건</dt><dd>{{ params_text(scenario, req.params) }}</dd></div>
-  <div><dt>기준 데이터셋</dt><dd class="rv-mono">{{ req.run_id }}</dd></div>
+  <div><dt>데이터 기준일</dt><dd>{{ run_day(req.run_id) }} <span class="rv-mono rv-sub">({{ req.run_id }})</span></dd></div>
   {% if req.purpose %}<div><dt>분석 목적</dt><dd>{{ req.purpose }}</dd></div>{% endif %}
   <div><dt>신청 일시</dt><dd>{{ req.requested_at | dt }}{% if item.manifest %} (완료 {{ item.manifest.finished_at | dt }}){% endif %}</dd></div>
 </dl>
@@ -31,9 +31,9 @@
 {% else %}
 <div class="rv-result-bar">
   {% if item.manifest.suppressed_cells %}
-  <p>개인 식별 위험을 줄이기 위해 {{ min_cell }} 미만인 칸 {{ item.manifest.suppressed_cells | num }}개를 가렸습니다. 합계와 비율은 가리지 않은 칸만으로 계산했습니다.</p>
+  <p>개인 식별을 막기 위해 {{ min_cell }} 미만인 값 {{ item.manifest.suppressed_cells | num }}개를 <strong>X</strong>로 비공개 처리했습니다. 합계와 비율은 공개된 값만으로 계산했습니다.</p>
   {% else %}
-  <p>가린 칸 없이 모든 집계를 표시합니다.</p>
+  <p>비공개 처리한 값 없이 모든 집계를 표시합니다.</p>
   {% endif %}
   <div class="rv-actions">
     <a href="{{ again }}" class="krds-btn small tertiary">조건 바꿔 다시 신청</a>

@@ -22,7 +22,15 @@
   --rv-fail: #c62828;
   --rv-fail-soft: #fdecec;
   --rv-gutter: 2.4rem;
+  /* KRDS default is 0.4s, which makes hover feel laggy */
+  --krds-transition-base: 0.1s ease-out;
 }
+
+/* keep the focus ring for keyboard users, drop it after a mouse click */
+:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.krds-btn.primary:focus:not(:focus-visible) { background-color: var(--krds-button--color-primary-fill); }
+.krds-btn.secondary:focus:not(:focus-visible) { background-color: var(--krds-button--color-secondary-fill); }
+.krds-btn.tertiary:focus:not(:focus-visible) { background-color: var(--krds-button--color-tertiary-fill); }
 
 html, body { font-family: "Pretendard GOV", sans-serif; color: var(--rv-text); }
 body { background: #fff; }
@@ -73,6 +81,7 @@ body { background: #fff; }
 .rv-section-title { font-size: 2.2rem; font-weight: 700; margin: 0 0 1.2rem; }
 .rv-section-head .rv-section-title { margin: 0; }
 .rv-note { font-size: 1.4rem; color: var(--rv-sub); margin: 0 0 1.2rem; line-height: 1.6; }
+.rv-sub { color: var(--rv-sub); }
 .rv-mono { font-family: "D2Coding", Consolas, monospace; }
 .rv-hash { font-size: 1.3rem; }
 .rv-full { width: 100%; }
@@ -100,7 +109,8 @@ body { background: #fff; }
 .rv-num, .krds-table-wrap .tbl.data td.rv-num { text-align: right; font-variant-numeric: tabular-nums; }
 .krds-table-wrap .tbl.data th.rv-num-h { text-align: right; }
 .rv-empty-cell { text-align: center; color: var(--rv-sub); }
-.rv-masked { color: var(--rv-sub); font-size: 1.3rem; }
+.rv-masked { color: var(--rv-sub); font-weight: 700; }
+.rv-legend { font-size: 1.4rem; color: var(--rv-sub); margin: 0.8rem 0 0; }
 
 /* status badges */
 .rv-badge { display: inline-flex; align-items: center; height: 2.6rem; padding: 0 0.9rem; border-radius: 0.4rem; font-size: 1.3rem; font-weight: 700; white-space: nowrap; background: var(--rv-bg-soft); color: var(--rv-sub); border: 1px solid var(--rv-line-soft); }

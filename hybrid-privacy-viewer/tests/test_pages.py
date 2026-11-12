@@ -13,6 +13,7 @@ def test_policy_home_is_request_list(client):
 def test_new_analysis_form_lists_runs_and_templates(policy):
     text = policy.get("/policy/analyses/new?run_id=20261109-01").text
     assert '<option value="20261109-01" selected>' in text and "분석 목적" in text
+    assert "2026-11-12 (최신)" in text
     assert "위기가구 지원 연계율" in text and "기초생활보장 수급 현황" in text
 
 
@@ -20,6 +21,7 @@ def test_params_fragment_follows_template(policy):
     res = policy.get("/policy/analyses/new/params?scenario=basic_living_status", headers={"HX-Request": "true"})
     assert "<html" not in res.text
     assert "가구 유형" in res.text and "위기정보 유형" not in res.text
+    assert 'value="2023"' in res.text and 'value="2025"' in res.text
 
 
 def test_security_run_status(security):

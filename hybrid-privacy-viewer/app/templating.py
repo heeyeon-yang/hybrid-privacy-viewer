@@ -42,3 +42,11 @@ def asset(path: str) -> str:
 
 
 templates.env.globals["asset"] = asset
+
+
+def run_day(run_id: str) -> str:
+    """20261112-01 -> 2026-11-12, the date the data was exported."""
+    return f"{run_id[:4]}-{run_id[4:6]}-{run_id[6:8]}" if len(run_id) >= 8 else run_id
+
+
+templates.env.globals["run_day"] = run_day

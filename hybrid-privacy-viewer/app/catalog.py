@@ -26,6 +26,7 @@ class Param:
     kind: str  # month | year | choice
     choices: tuple[str, ...] = ()
     required: bool = False
+    default: str = ""
 
 
 @dataclass(frozen=True)
@@ -60,8 +61,8 @@ CATALOG = {
         title="기초생활보장 수급 현황",
         description="연도, 가구 유형, 급여 종류별 수급자 수와 1인당 월평균 지급액을 봅니다.",
         params=(
-            Param("from", "시작 연도", "year", required=True),
-            Param("to", "종료 연도", "year", required=True),
+            Param("from", "시작 연도", "year", required=True, default="2023"),
+            Param("to", "종료 연도", "year", required=True, default="2025"),
             Param("household_type", "가구 유형", "choice", tuple(HOUSEHOLD_TYPES)),
             Param("benefit_type", "급여 종류", "choice", tuple(BENEFIT_TYPES)),
         ),

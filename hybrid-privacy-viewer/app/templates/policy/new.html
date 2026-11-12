@@ -5,7 +5,7 @@
 {% block content %}
 {{ breadcrumb([('데이터 분석 신청', '/policy/analyses'), ('분석 신청', none)]) }}
 <h1 class="rv-page-title">분석 신청</h1>
-<p class="rv-desc">승인된 분석 템플릿과 조건을 골라 신청합니다. 원본이나 개별 기록은 볼 수 없고, 결과에서 {{ min_cell_size() }} 미만인 집계는 가려서 제공합니다.</p>
+<p class="rv-desc">승인된 분석 템플릿과 조건을 골라 신청합니다. 원본이나 개별 기록은 볼 수 없고, 결과에서 {{ min_cell_size() }} 미만인 집계는 비공개(X)로 표시합니다.</p>
 
 {% if error %}<div class="rv-notice rv-notice-danger" role="alert">{{ error }}</div>{% endif %}
 
@@ -13,10 +13,10 @@
 <form method="post" action="/policy/analyses" class="rv-form">
   <div class="rv-fields rv-fields-2">
     <div class="form-group">
-      <div class="form-tit"><label for="f-run">기준 데이터셋 <span class="rv-req" aria-label="필수">*</span></label></div>
+      <div class="form-tit"><label for="f-run">데이터 기준일 <span class="rv-req" aria-label="필수">*</span></label></div>
       <div class="form-conts">
         <select id="f-run" name="run_id" class="krds-form-select" required>
-          {% for r in runs %}<option value="{{ r.run_id }}"{% if values.get('run_id') == r.run_id %} selected{% endif %}>{{ r.run_id[:4] }}-{{ r.run_id[4:6] }}-{{ r.run_id[6:8] }} 반출분 ({{ r.run_id }})</option>{% endfor %}
+          {% for r in runs %}<option value="{{ r.run_id }}"{% if values.get('run_id') == r.run_id %} selected{% endif %}>{{ run_day(r.run_id) }}{% if loop.first %} (최신){% endif %}</option>{% endfor %}
         </select>
       </div>
     </div>
@@ -46,6 +46,6 @@
   </div>
 </form>
 {% else %}
-<div class="rv-empty">분석에 쓸 수 있는 데이터셋이 아직 없습니다.</div>
+<div class="rv-empty">분석에 쓸 수 있는 데이터가 아직 없습니다.</div>
 {% endif %}
 {% endblock %}

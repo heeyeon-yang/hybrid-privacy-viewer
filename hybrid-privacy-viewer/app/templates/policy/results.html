@@ -12,7 +12,7 @@
   <table class="tbl col data">
     <caption>완료된 분석 결과 목록</caption>
     <thead>
-      <tr><th scope="col">분석 템플릿</th><th scope="col">조건</th><th scope="col">데이터셋</th><th scope="col">완료 일시</th><th scope="col" class="rv-num-h">가린 칸</th><th scope="col"><span class="sr-only">보기</span></th></tr>
+      <tr><th scope="col">분석 템플릿</th><th scope="col">조건</th><th scope="col">데이터 기준일</th><th scope="col">완료 일시</th><th scope="col" class="rv-num-h">비공개 값</th><th scope="col"><span class="sr-only">보기</span></th></tr>
     </thead>
     <tbody>
       {% for a in items %}
@@ -20,7 +20,7 @@
       <tr>
         <th scope="row">{{ s.title if s else a.request.scenario }}</th>
         <td class="rv-wrap">{{ params_text(s, a.request.params) }}</td>
-        <td class="rv-mono">{{ a.request.run_id }}</td>
+        <td>{{ run_day(a.request.run_id) }}</td>
         <td>{{ a.manifest.finished_at | dt }}</td>
         <td class="rv-num">{{ a.manifest.suppressed_cells | num }}</td>
         <td><a href="/policy/analyses/{{ a.request.request_id }}" class="krds-btn small secondary">결과 보기</a></td>
