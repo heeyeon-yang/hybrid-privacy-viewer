@@ -44,7 +44,7 @@ body { background: #fff; }
 .rv-header { border-bottom: 1px solid var(--rv-line); background: #fff; }
 .rv-header-in { display: flex; align-items: center; justify-content: space-between; gap: 1.6rem; min-height: 7.2rem; padding-top: 1.2rem; padding-bottom: 1.2rem; flex-wrap: wrap; }
 .rv-brand { display: inline-flex; align-items: center; gap: 1rem; text-decoration: none; color: var(--rv-text); }
-.rv-mark { width: 3.2rem; height: 3.2rem; color: var(--rv-navy); flex: none; }
+.rv-mark { width: 3.6rem; height: 3.6rem; flex: none; display: block; }
 .rv-brand-name { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
 .rv-user { display: flex; align-items: center; gap: 1.2rem; font-size: 1.5rem; }
 .rv-user form { margin: 0; display: flex; }
@@ -188,7 +188,7 @@ body { background: #fff; }
   .rv-govbar { font-size: 1.2rem; }
   .rv-header-in { min-height: 0; }
   .rv-brand-name { font-size: 1.8rem; }
-  .rv-mark { width: 2.8rem; height: 2.8rem; }
+  .rv-mark { width: 3rem; height: 3rem; }
   .rv-user { width: 100%; gap: 0.8rem; font-size: 1.4rem; }
   .rv-session-label { display: none; }
   .rv-user form { margin-left: auto; }
