@@ -7,3 +7,4 @@ __pycache__/
 # written by the local fake Lambda
 sample-data/results/requests/
 sample-data/reports/analysis_requests/
+site/
