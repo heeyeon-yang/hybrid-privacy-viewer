@@ -96,8 +96,9 @@ class LocalLambda:
         run_id = payload.get("run_id") or ""
         if not RUN_ID.match(run_id) or not (self.root / "data" / f"run_id={run_id}").is_dir():
             return {"error": "run_not_ready", "detail": run_id}
-        if not payload.get("requested_by"):
-            return {"error": "invalid_params", "detail": "requested_by"}
+        purpose = (payload.get("purpose") or "").strip()
+        if not payload.get("requested_by") or not purpose or len(purpose) > 200:
+            return {"error": "invalid_params", "detail": "requested_by, purpose"}
 
         with self._lock:
             request_id = self._next_id()
@@ -106,6 +107,7 @@ class LocalLambda:
                 "run_id": run_id,
                 "scenario": scenario.key,
                 "params": params,
+                "purpose": purpose,
                 "requested_by": payload["requested_by"],
                 "requested_at": now().isoformat(),
             }

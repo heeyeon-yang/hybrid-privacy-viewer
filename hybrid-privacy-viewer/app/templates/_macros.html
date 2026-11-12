@@ -3,6 +3,23 @@
 {%- endmacro %}
 
 {% macro analysis_status(status, label) -%}
-{% set badge = {'running': 'outline-information', 'succeeded': 'outline-success', 'failed': 'outline-danger'} %}
-<span class="krds-badge {{ badge.get(status, 'outline-gray') }}">{{ label }}</span>
+{% set badge = {'running': 'run', 'succeeded': 'ok', 'failed': 'fail'} %}
+<span class="rv-badge {{ badge.get(status, '') }}">{{ label }}</span>
+{%- endmacro %}
+
+{% macro nav(href, label, key, active, sub=false) -%}
+<li class="rv-side-item{% if sub %} sub{% endif %}{% if active == key %} active{% endif %}">
+  <a href="{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a>
+</li>
+{%- endmacro %}
+
+{% macro breadcrumb(items) -%}
+<nav class="rv-breadcrumb" aria-label="현재 경로">
+  <ol>
+    <li><a href="/">홈</a></li>
+    {% for label, href in items %}
+    <li>{% if href %}<a href="{{ href }}">{{ label }}</a>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}</li>
+    {% endfor %}
+  </ol>
+</nav>
 {%- endmacro %}

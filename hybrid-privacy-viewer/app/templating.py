@@ -28,3 +28,17 @@ templates.env.globals["session_minutes"] = lambda: get_settings().session_idle_m
 templates.env.globals["poll_seconds"] = lambda: get_settings().poll_seconds
 templates.env.globals["min_cell_size"] = lambda: get_settings().min_cell_size
 templates.env.globals["params_text"] = describe_params
+
+
+STATIC = Path(__file__).parent / "static"
+
+
+def asset(path: str) -> str:
+    # mtime in the query string so browsers drop a stale copy after a deploy
+    try:
+        return f"/static/{path}?v={int((STATIC / path).stat().st_mtime)}"
+    except OSError:
+        return f"/static/{path}"
+
+
+templates.env.globals["asset"] = asset

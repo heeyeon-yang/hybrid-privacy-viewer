@@ -5,8 +5,8 @@
   }
 
   var palette = [
-    css("--krds-light-color-icon-primary", "#256ef4"),
-    "#0b8f8c", "#f08c00", "#7048e8", "#e8590c", "#5c7cfa"
+    css("--krds-color-light-secondary-60", "#1c589c"),
+    "#6b96c7", "#0b8f8c", "#c9821c", "#8a949e", "#052b57"
   ];
 
   function render(el) {
@@ -16,6 +16,7 @@
     var unit = cfg.unit || "";
     var opt = {
       color: palette,
+      animation: false,
       textStyle: { fontFamily: "Pretendard GOV, sans-serif" },
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, valueFormatter: function (v) { return v.toLocaleString() + unit; } },
       grid: { left: 8, right: 32, top: 16, bottom: 8, containLabel: true }

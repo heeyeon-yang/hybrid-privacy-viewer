@@ -1,6 +1,7 @@
 {
   "run_id": "20261111-02",
   "reviewed_at": "2026-11-11T16:30:00+09:00",
+  "rules_version": "rules-v1.1",
   "passed": false,
   "checks": [
     {

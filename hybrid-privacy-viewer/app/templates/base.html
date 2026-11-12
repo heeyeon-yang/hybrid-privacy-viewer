@@ -3,49 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{% endblock %} | 복지데이터 분석결과 조회시스템</title>
+  <title>{% block title %}{% endblock %} | 복지데이터 안심분석시스템</title>
   <link rel="stylesheet" href="{{ url_for('static', path='vendor/krds/krds.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <script src="{{ url_for('static', path='vendor/htmx.min.js') }}" defer></script>
   <script src="{{ url_for('static', path='vendor/echarts.min.js') }}"></script>
 </head>
 <body>
-<div id="krds-skip-link"><a href="#content">본문 바로가기</a></div>
+<a class="rv-skip" href="#content">본문 바로가기</a>
 <div id="wrap">
-  <header id="krds-header" class="rv-header">
-    <div class="header-in">
-      <div class="header-container">
-        <div class="inner">
-          <div class="header-branding">
-            <p class="rv-brand">
-              <a href="/">
-                <span class="rv-brand-org">사회보장데이터센터</span>
-                <span class="rv-brand-name">분석결과 조회시스템</span>
-              </a>
-              <span class="krds-badge outline-gray">내부 업무용</span>
-            </p>
-            {% if user %}
-            <div class="rv-user">
-              <span class="krds-badge {{ 'bg-primary' if user.role == 'policy' else 'bg-secondary' }}">{{ user.team }}</span>
-              <span class="rv-user-name">{{ user.name }}님</span>
-              <span class="rv-session" data-minutes="{{ session_minutes() }}">자동 로그아웃 <strong>{{ session_minutes() }}:00</strong></span>
-              <form method="post" action="/logout">
-                <button type="submit" class="krds-btn small tertiary">로그아웃</button>
-              </form>
-            </div>
-            {% endif %}
-          </div>
-        </div>
+  <div class="rv-govbar">
+    <div class="rv-inner">허가된 업무 담당자만 사용할 수 있는 내부 시스템입니다. 분석 신청 기록은 정보보호팀이 확인합니다.</div>
+  </div>
+
+  <header class="rv-header">
+    <div class="rv-inner rv-header-in">
+      <a href="/" class="rv-brand">
+        <svg class="rv-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="currentColor"/>
+          <circle cx="12" cy="13" r="2.2" fill="#fff"/><circle cx="20" cy="13" r="2.2" fill="#fff"/><circle cx="16" cy="20" r="2.2" fill="#fff"/>
+        </svg>
+        <span class="rv-brand-name">복지데이터 안심분석시스템</span>
+      </a>
+      {% if user %}
+      <div class="rv-user">
+        <span class="rv-team rv-team-{{ user.role }}">{{ user.team }}</span>
+        <span class="rv-user-name">{{ user.name }}님</span>
+        <span class="rv-session" data-minutes="{{ session_minutes() }}" title="활동이 없으면 자동으로 로그아웃됩니다">
+          <span class="rv-session-label">남은 시간</span> <strong>{{ session_minutes() }}:00</strong>
+        </span>
+        <form method="post" action="/logout">
+          <button type="submit" class="krds-btn small tertiary">로그아웃</button>
+        </form>
       </div>
+      {% endif %}
     </div>
   </header>
 
-  <div id="container" class="rv-container">
-    <div class="inner rv-layout">
+  <div class="rv-container">
+    <div class="rv-inner rv-layout{% if not user %} rv-layout-single{% endif %}">
       {% if user %}
-      <nav class="krds-side-navigation rv-side" aria-label="메뉴">
-        <h2 class="lnb-tit">{{ user.team }}</h2>
-        <ul class="lnb-list">
+      <nav class="rv-side" aria-label="업무 메뉴">
+        <h2 class="rv-side-tit">{{ user.team }}</h2>
+        <ul class="rv-side-list">
           {% block menu %}{% endblock %}
         </ul>
       </nav>
@@ -56,13 +56,14 @@
     </div>
   </div>
 
-  <footer id="krds-footer" class="rv-footer">
-    <div class="inner">
-      <p class="f-copy">KT Cloud 심화 프로젝트 3팀 Coconut. 실제 기관과 무관한 시연용 시스템이며 합성 데이터를 사용합니다.</p>
+  <footer class="rv-footer">
+    <div class="rv-inner rv-footer-in">
+      <p class="rv-footer-desc"><strong>복지데이터 안심분석시스템</strong> 가명처리된 복지 데이터를 승인된 분석 템플릿으로만 분석하고, 소규모 집계는 가려서 제공합니다.</p>
+      <p class="rv-footer-credit">© 2026 Team Coconut</p>
     </div>
   </footer>
 </div>
 <script src="{{ url_for('static', path='vendor/krds/krds.min.js') }}"></script>
-<script src="{{ url_for('static', path='js/app.js') }}"></script>
+<script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

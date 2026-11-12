@@ -78,7 +78,7 @@ def export_record(run_id: str, at: str, status: str) -> dict:
     return {"run_id": run_id, "executed_at": at, "status": status, "files": files}
 
 
-def review(run_id: str, at: str, k: int = 7, direct_ok: bool = True) -> dict:
+def review(run_id: str, at: str, rules: str, k: int = 7, direct_ok: bool = True) -> dict:
     checks = [
         {"item": "direct_identifier", "passed": direct_ok, "value": 0 if direct_ok else 1,
          "reason": None if direct_ok else "crisis_signal.contact_phone 컬럼이 삭제되지 않음"},
@@ -86,7 +86,8 @@ def review(run_id: str, at: str, k: int = 7, direct_ok: bool = True) -> dict:
         {"item": "k_anonymity", "passed": k >= 5, "value": k,
          "reason": None if k >= 5 else f"최소 k={k}, 기준 5 미만 (노원구 90세 이상 1인 가구)"},
     ]
-    return {"run_id": run_id, "reviewed_at": at, "passed": all(c["passed"] for c in checks), "checks": checks}
+    return {"run_id": run_id, "reviewed_at": at, "rules_version": rules,
+            "passed": all(c["passed"] for c in checks), "checks": checks}
 
 
 def macie(run_id: str, at: str, hit: str | None = None) -> dict:
@@ -96,7 +97,7 @@ def macie(run_id: str, at: str, hit: str | None = None) -> dict:
         files.append({
             "key": f"data/run_id={run_id}/{name}",
             "detected": detected,
-            "types": ["PHONE_NUMBER"] if detected else [],
+            "types": ["KR_MOBILE_PHONE", "KR_RRN"] if detected else [],
             "classification": "quarantine" if detected else "clean",
         })
     return {"run_id": run_id, "scanned_at": at, "files": files}
@@ -108,23 +109,23 @@ def main() -> None:
     rng = random.Random(42)
 
     runs = [
-        ("20261109-01", "2026-11-09T14:00:00+09:00", "ok"),
-        ("20261110-01", "2026-11-10T14:00:00+09:00", "macie"),
-        ("20261111-01", "2026-11-11T14:00:00+09:00", "k_anon"),
-        ("20261111-02", "2026-11-11T16:30:00+09:00", "direct"),
-        ("20261112-01", "2026-11-12T14:00:00+09:00", "ok"),
+        ("20261109-01", "2026-11-09T14:00:00+09:00", "ok", "rules-v1.0"),
+        ("20261110-01", "2026-11-10T14:00:00+09:00", "macie", "rules-v1.0"),
+        ("20261111-01", "2026-11-11T14:00:00+09:00", "k_anon", "rules-v1.1"),
+        ("20261111-02", "2026-11-11T16:30:00+09:00", "direct", "rules-v1.1"),
+        ("20261112-01", "2026-11-12T14:00:00+09:00", "ok", "rules-v1.2"),
     ]
 
-    for run_id, at, case in runs:
+    for run_id, at, case, rules in runs:
         rep = ROOT / "reports" / f"run_id={run_id}"
         if case == "k_anon":
-            write_json(rep / "adequacy_review.json", review(run_id, at, k=2))
+            write_json(rep / "adequacy_review.json", review(run_id, at, rules, k=2))
             continue
         if case == "direct":
-            write_json(rep / "adequacy_review.json", review(run_id, at, direct_ok=False))
+            write_json(rep / "adequacy_review.json", review(run_id, at, rules, direct_ok=False))
             continue
 
-        write_json(rep / "adequacy_review.json", review(run_id, at))
+        write_json(rep / "adequacy_review.json", review(run_id, at, rules))
         write_json(rep / "export_record.json", export_record(run_id, at, "exported"))
         later = at.replace("T14:00", "T14:20")
         write_json(rep / "macie_result.json", macie(run_id, later, "crisis_signal.csv" if case == "macie" else None))

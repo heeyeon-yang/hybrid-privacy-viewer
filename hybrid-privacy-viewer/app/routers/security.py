@@ -1,9 +1,10 @@
 from collections import Counter
+from datetime import date, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from app.analyses import KST, list_records
 from app.auth import User, require_role
-from app.analyses import list_records
 from app.catalog import CATALOG
 from app.reports import CHECK_LABELS, MACIE_TYPE_LABELS
 from app.runs import STEPS, load_run, load_runs
@@ -40,12 +41,49 @@ def run_detail(
     return templates.TemplateResponse(request, "security/run_detail.html", {"user": user, "run": run, "steps": STEPS})
 
 
+def in_period(items, start: date | None, end: date | None):
+    out = []
+    for run in items:
+        at = run.executed_at
+        if at is None:
+            continue
+        day = at.astimezone(KST).date()
+        if (start and day < start) or (end and day > end):
+            continue
+        out.append(run)
+    return out
+
+
+def parse_day(value: str) -> date | None:
+    try:
+        return date.fromisoformat(value) if value else None
+    except ValueError:
+        return None
+
+
 @router.get("/failures")
-def failures(request: Request, user: User = Depends(require_role("security")), store: Store = Depends(reports_store)):
-    items = load_runs(store)
+def failures(
+    request: Request,
+    user: User = Depends(require_role("security")),
+    store: Store = Depends(reports_store),
+    start: str = Query(""),
+    end: str = Query(""),
+):
+    today = datetime.now(KST).date()
+    if not request.query_params:
+        start = (today - timedelta(days=29)).isoformat()
+        end = today.isoformat()
+    start_day, end_day = parse_day(start), parse_day(end)
+    items = in_period(load_runs(store), start_day, end_day)
+
     reasons: Counter = Counter()
     detected: Counter = Counter()
+    by_rules: dict[str, dict] = {}
     for run in items:
+        row = by_rules.setdefault(run.rules_version or "기록 없음", {"runs": 0, "aborted": 0, "quarantined": 0, "detected": 0})
+        row["runs"] += 1
+        row["aborted"] += run.status == "중단"
+        row["quarantined"] += run.status == "격리"
         if run.review and not run.review.passed:
             for check in run.review.checks:
                 if not check.passed:
@@ -54,15 +92,21 @@ def failures(request: Request, user: User = Depends(require_role("security")), s
             for f in run.macie.files:
                 for t in f.types:
                     detected[MACIE_TYPE_LABELS.get(t, t)] += 1
+                    row["detected"] += 1
 
     context = {
         "user": user,
+        "start": start_day.isoformat() if start_day else "",
+        "end": end_day.isoformat() if end_day else "",
         "total": len(items),
         "aborted": sum(1 for r in items if r.status == "중단"),
         "quarantined": sum(1 for r in items if r.status == "격리"),
         "reasons": reasons.most_common(),
         "detected": detected.most_common(),
+        "by_rules": sorted(by_rules.items(), reverse=True),
     }
+    if request.headers.get("HX-Request"):
+        return templates.TemplateResponse(request, "security/_failures_body.html", context)
     return templates.TemplateResponse(request, "security/failures.html", context)
 
 

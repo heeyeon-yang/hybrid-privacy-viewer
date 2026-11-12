@@ -7,7 +7,7 @@ import pytest
 from app.catalog import CATALOG, InvalidParams, clean_params
 from tests.conftest import login
 
-CRISIS = {"run_id": "20261112-01", "scenario": "crisis_link_rate", "from": "2026-05", "to": "2026-10"}
+CRISIS = {"run_id": "20261112-01", "scenario": "crisis_link_rate", "from": "2026-05", "to": "2026-10", "purpose": "연계율 점검"}
 
 
 def submit(client, **form):
@@ -60,7 +60,7 @@ def test_small_cells_are_blank(policy, data_dir):
 
 
 def test_derived_column_hidden_with_its_count(policy, data_dir):
-    form = {"run_id": "20261112-01", "scenario": "basic_living_status", "from": "2026", "to": "2026", "benefit_type": "교육급여"}
+    form = {"run_id": "20261112-01", "scenario": "basic_living_status", "from": "2026", "to": "2026", "benefit_type": "교육급여", "purpose": "점검"}
     request_id = submit(policy, **form).headers["location"].rsplit("/", 1)[1]
     rows = list(csv.DictReader((data_dir / "results" / "requests" / request_id / "result.csv").open(encoding="utf-8")))
     assert rows
@@ -81,7 +81,9 @@ def test_download_csv(policy):
     ({**CRISIS, "from": "2026-10", "to": "2026-05"}, "시작이 종료보다"),
     ({**CRISIS, "sigungu": "서울 종로구"}, "목록에 없습니다"),
     ({**CRISIS, "scenario": "free_sql"}, "지원하지 않는"),
-    ({**CRISIS, "run_id": "20261111-01"}, "분석할 수 없습니다"),
+    ({**CRISIS, "run_id": "20261111-01"}, "분석에 쓸 수 없습니다"),
+    ({**CRISIS, "purpose": " "}, "분석 목적을"),
+    ({**CRISIS, "purpose": "x" * 201}, "분석 목적을"),
 ])
 def test_bad_request_is_rejected(policy, data_dir, form, message):
     res = submit(policy, **form)
@@ -94,6 +96,7 @@ def test_requester_comes_from_session(policy, data_dir):
     request_id = submit(policy, **CRISIS, requested_by="someone").headers["location"].rsplit("/", 1)[1]
     request = json.loads((data_dir / "results" / "requests" / request_id / "request.json").read_text(encoding="utf-8"))
     assert request["requested_by"] == "policy01"
+    assert request["purpose"] == "연계율 점검"
 
 
 def test_other_users_cannot_open_request(client):
@@ -117,7 +120,7 @@ def test_running_request_polls_until_done(policy, client, data_dir):
     url = submit(policy, **CRISIS).headers["location"]
 
     page = policy.get(url).text
-    assert "실행 중" in page and 'hx-trigger="every 5s"' in page
+    assert "분석 중" in page and 'hx-trigger="every 5s"' in page
     assert "hx-trigger" in policy.get("/policy/analyses").text
 
     poll = policy.get(url, headers={"HX-Request": "true"})
@@ -136,6 +139,7 @@ def test_security_sees_request_log_without_results(policy, client):
     login(client, "security01", "pw-security")
     text = client.get("/security/analyses").text
     assert "policy01" in text and "위기가구 지원 연계율" in text and "2026-08 ~ 2026-08" in text
+    assert "연계율 점검" in text
     assert "가려진 칸" in text
 
 
@@ -144,3 +148,19 @@ def test_clean_params_fills_optional_with_none():
     assert params == {"from": "2024", "to": "2026", "household_type": None, "benefit_type": None}
     with pytest.raises(InvalidParams):
         clean_params(CATALOG["basic_living_status"], {"from": "24", "to": "2026"})
+
+
+def test_results_menu_lists_only_finished(policy, client):
+    done = submit(policy, **CRISIS).headers["location"].rsplit("/", 1)[1]
+    client.app.state.analysis.delay = 60
+    running = submit(policy, **CRISIS).headers["location"].rsplit("/", 1)[1]
+    text = policy.get("/policy/results").text
+    assert f"/policy/analyses/{done}" in text and f"/policy/analyses/{running}" not in text
+
+
+def test_retry_link_keeps_conditions(policy):
+    url = submit(policy, **{**CRISIS, "sigungu": "서울 노원구"}).headers["location"]
+    text = policy.get(url).text
+    assert "run_id=20261112-01" in text and "sigungu=%EC%84%9C%EC%9A%B8" in text
+    form = policy.get("/policy/analyses/new?run_id=20261112-01&scenario=crisis_link_rate&sigungu=서울 노원구&from=2026-05").text
+    assert "<option selected>서울 노원구</option>" in form and 'value="2026-05"' in form

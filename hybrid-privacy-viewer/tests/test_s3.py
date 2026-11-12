@@ -12,7 +12,7 @@ from app.main import create_app
 from tests.conftest import login
 
 BUCKET = "clean-bucket"
-CRISIS = {"run_id": "20261112-01", "scenario": "crisis_link_rate", "from": "2026-05", "to": "2026-10"}
+CRISIS = {"run_id": "20261112-01", "scenario": "crisis_link_rate", "from": "2026-05", "to": "2026-10", "purpose": "점검"}
 
 
 class FakeLambda:
@@ -76,7 +76,7 @@ def test_security_pages_read_bucket(s3_client):
 def test_request_goes_through_lambda_and_result_is_read_from_bucket(s3_client, data_dir):
     client, fake, writes = s3_client
     login(client, "policy01", "pw-policy")
-    assert "20261112-01" in client.get("/policy/runs").text
+    assert "20261112-01" in client.get("/policy/datasets").text
 
     url = client.post("/policy/analyses", data=CRISIS, follow_redirects=False).headers["location"]
     name, payload = fake.calls[0]
@@ -98,4 +98,4 @@ def test_lambda_error_shows_message(s3_client):
     fake.lam.submit = lambda payload: {"error": "run_not_ready", "detail": "x"}
     login(client, "policy01", "pw-policy")
     res = client.post("/policy/analyses", data=CRISIS)
-    assert res.status_code == 422 and "분석할 수 없습니다" in res.text
+    assert res.status_code == 422 and "분석에 쓸 수 없습니다" in res.text

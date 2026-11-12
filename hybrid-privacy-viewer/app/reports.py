@@ -28,6 +28,7 @@ class AdequacyReview(BaseModel):
     run_id: str
     reviewed_at: datetime
     passed: bool
+    rules_version: str | None = None
     checks: list[AdequacyCheck]
 
 
@@ -50,7 +51,11 @@ CHECK_LABELS = {
     "k_anonymity": "k-익명성",
 }
 
+# managed identifiers have no Korean formats, so the custom ones carry most of the load
 MACIE_TYPE_LABELS = {
+    "KR_RRN": "주민등록번호",
+    "KR_MOBILE_PHONE": "휴대전화 번호",
+    "KR_ROAD_ADDRESS": "도로명 주소",
     "PHONE_NUMBER": "전화번호",
     "KOREA_RESIDENT_REGISTRATION_NUMBER": "주민등록번호",
     "EMAIL_ADDRESS": "이메일",

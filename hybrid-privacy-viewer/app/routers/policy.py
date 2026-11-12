@@ -14,7 +14,8 @@ router = APIRouter(prefix="/policy")
 ERRORS = {
     "unknown_scenario": "지원하지 않는 분석 템플릿입니다.",
     "invalid_params": "조건 값이 올바르지 않습니다.",
-    "run_not_ready": "선택한 데이터 회차는 아직 분석할 수 없습니다.",
+    "run_not_ready": "선택한 데이터셋은 아직 분석에 쓸 수 없습니다.",
+    "no_purpose": "분석 목적을 200자 이내로 입력하세요.",
 }
 
 
@@ -42,9 +43,9 @@ def own_analysis(store: Store, request_id: str, user: User):
     return analysis
 
 
-@router.get("/runs")
-def runs(request: Request, user: User = Depends(require_role("policy")), store: Store = Depends(results_store)):
-    return templates.TemplateResponse(request, "policy/runs.html", {"user": user, "runs": ready_runs(store)})
+@router.get("/datasets")
+def datasets(request: Request, user: User = Depends(require_role("policy")), store: Store = Depends(results_store)):
+    return templates.TemplateResponse(request, "policy/datasets.html", {"user": user, "runs": ready_runs(store)})
 
 
 def form_page(request: Request, user: User, store: Store, values: dict, error: str | None = None, status_code: int = 200):
@@ -86,10 +87,17 @@ async def create_analysis(request: Request, user: User = Depends(require_role("p
         params = clean_params(scenario, values)
     except InvalidParams as e:
         return form_page(request, user, store, values, str(e), 422)
+    purpose = values.get("purpose", "").strip()
+    if not purpose or len(purpose) > 200:
+        return form_page(request, user, store, values, ERRORS["no_purpose"], 422)
 
-    result = request.app.state.analysis.submit(
-        {"run_id": values["run_id"], "scenario": scenario.key, "params": params, "requested_by": user.username}
-    )
+    result = request.app.state.analysis.submit({
+        "run_id": values["run_id"],
+        "scenario": scenario.key,
+        "params": params,
+        "purpose": purpose,
+        "requested_by": user.username,
+    })
     if "error" in result:
         message = ERRORS.get(result["error"], "분석 요청을 처리하지 못했습니다. 잠시 후 다시 시도하세요.")
         return form_page(request, user, store, values, message, 422)
@@ -103,6 +111,12 @@ def analyses(request: Request, user: User = Depends(require_role("policy")), sto
     if request.headers.get("HX-Request"):
         return templates.TemplateResponse(request, "policy/_analysis_list.html", context)
     return templates.TemplateResponse(request, "policy/analyses.html", context)
+
+
+@router.get("/results")
+def results(request: Request, user: User = Depends(require_role("policy")), store: Store = Depends(results_store)):
+    items = list_analyses(store, user.username, status="succeeded")
+    return templates.TemplateResponse(request, "policy/results.html", {"user": user, "items": items, "catalog": CATALOG})
 
 
 @router.get("/analyses/{request_id}")

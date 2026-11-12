@@ -6,7 +6,7 @@ def test_policy_cannot_open_security_pages(policy, path):
     assert policy.get(path).status_code == 403
 
 
-@pytest.mark.parametrize("path", ["/policy/runs", "/policy/analyses", "/policy/analyses/new"])
+@pytest.mark.parametrize("path", ["/policy/datasets", "/policy/analyses", "/policy/analyses/new"])
 def test_security_cannot_open_policy_pages(security, path):
     assert security.get(path).status_code == 403
 

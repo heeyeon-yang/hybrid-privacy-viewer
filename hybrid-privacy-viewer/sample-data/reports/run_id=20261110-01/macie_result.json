@@ -12,7 +12,8 @@
       "key": "data/run_id=20261110-01/crisis_signal.csv",
       "detected": true,
       "types": [
-        "PHONE_NUMBER"
+        "KR_MOBILE_PHONE",
+        "KR_RRN"
       ],
       "classification": "quarantine"
     },

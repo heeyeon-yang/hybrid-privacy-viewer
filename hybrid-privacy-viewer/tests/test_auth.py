@@ -2,7 +2,7 @@ from tests.conftest import login
 
 
 def test_pages_need_login(client):
-    res = client.get("/policy/runs", follow_redirects=False)
+    res = client.get("/policy/datasets", follow_redirects=False)
     assert res.status_code == 303
     assert res.headers["location"].startswith("/login")
 
@@ -27,9 +27,9 @@ def test_account_locks_after_max_failures(client):
 
 
 def test_header_shows_team(policy):
-    assert "정책기획팀" in policy.get("/policy/runs").text
+    assert "정책기획팀" in policy.get("/policy/datasets").text
 
 
 def test_logout_clears_session(policy):
     policy.post("/logout")
-    assert policy.get("/policy/runs", follow_redirects=False).status_code == 303
+    assert policy.get("/policy/datasets", follow_redirects=False).status_code == 303

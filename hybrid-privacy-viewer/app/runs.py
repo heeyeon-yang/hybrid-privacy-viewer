@@ -48,6 +48,22 @@ class RunSummary:
         return self.reached + 1 if self.status in ("중단", "격리") else None
 
     @property
+    def progress(self) -> str:
+        if self.broken:
+            return "보고서를 읽을 수 없음"
+        if self.status == "격리":
+            return "Macie 검사에서 탐지되어 격리"
+        if self.failed_step is not None:
+            return f"{STEPS[self.failed_step]}에서 중단"
+        if self.reached == 4:
+            return "정제 버킷 적재까지 완료"
+        return f"{STEPS[self.reached + 1]} 대기"
+
+    @property
+    def rules_version(self) -> str | None:
+        return self.review.rules_version if self.review else None
+
+    @property
     def executed_at(self):
         if self.export:
             return self.export.executed_at

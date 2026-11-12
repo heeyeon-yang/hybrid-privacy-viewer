@@ -8,7 +8,7 @@ from app.storage import REQUEST_ID, Store
 
 KST = timezone(timedelta(hours=9))
 
-STATUS_LABELS = {"running": "실행 중", "succeeded": "완료", "failed": "실패"}
+STATUS_LABELS = {"running": "분석 중", "succeeded": "완료", "failed": "실패"}
 
 
 def now() -> datetime:
@@ -20,6 +20,7 @@ class AnalysisRequest(BaseModel):
     run_id: str
     scenario: str
     params: dict
+    purpose: str = ""
     requested_by: str
     requested_at: datetime
 
@@ -76,10 +77,11 @@ def load_analysis(results: Store, request_id: str) -> Analysis | None:
         return None
 
 
-def list_analyses(results: Store, username: str) -> list[Analysis]:
+def list_analyses(results: Store, username: str, status: str | None = None) -> list[Analysis]:
     ids = sorted((i for i in results.list_dirs("requests") if REQUEST_ID.match(i)), reverse=True)
     items = (load_analysis(results, i) for i in ids)
-    return [a for a in items if a and a.request.requested_by == username]
+    mine = [a for a in items if a and a.request.requested_by == username]
+    return [a for a in mine if a.status == status] if status else mine
 
 
 def list_records(reports: Store) -> list[AnalysisRecord]:
