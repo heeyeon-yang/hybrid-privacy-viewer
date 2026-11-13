@@ -86,8 +86,8 @@ def main() -> None:
     shutil.copytree(ROOT / "sample-data", data, ignore=shutil.ignore_patterns("requests", "analysis_requests"))
     accounts = tmp / "accounts.json"
     accounts.write_text(json.dumps({"accounts": [
-        {"username": "policy01", "name": "김서연", "role": "policy", "password_hash": hash_password("demo", 1000)},
-        {"username": "security01", "name": "박도윤", "role": "security", "password_hash": hash_password("demo", 1000)},
+        {"username": "policy01", "name": "양희연", "role": "policy", "password_hash": hash_password("demo", 1000)},
+        {"username": "security01", "name": "윤민혁", "role": "security", "password_hash": hash_password("demo", 1000)},
     ]}), encoding="utf-8")
     settings = Settings(data_dir=data, accounts_file=accounts, session_secret="static-build", local_analysis_delay=0)
     app = create_app(settings)
